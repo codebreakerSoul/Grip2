@@ -1,5 +1,6 @@
 package com.sahil.grip2;
 
+import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +12,11 @@ import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.sahil.grip2.model.PersonaldetailModel;
+import com.sahil.grip2.model.education.EducationdetailModel;
 import com.sahil.grip2.remote.APIService;
 import com.sahil.grip2.remote.ApiUtils;
+
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,11 +29,15 @@ public class EducationActivity extends AppCompatActivity {
     String start_year="",degree="",organisation="",location="",end_year="";
     private APIService mAPIService;
     String TAG = "ed";
+    int id=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_education);
+
+        Intent intent = getIntent();
+        id = Objects.requireNonNull(intent.getExtras()).getInt("id");
 
         Button submitBtn = findViewById(R.id.btn_submit);
         et_start_year = findViewById(R.id.et_start_year);
@@ -82,23 +90,31 @@ public class EducationActivity extends AppCompatActivity {
 
     public void sendPost(String body) {
 
-        long id = 158;
-
-        mAPIService.savePost(id, body).enqueue(new Callback<PersonaldetailModel>() {
+        mAPIService.saveEduData(id, body).enqueue(new Callback<EducationdetailModel>() {
             @Override
-            public void onResponse(Call<PersonaldetailModel> call, Response<PersonaldetailModel> response) {
+            public void onResponse(Call<EducationdetailModel> call, Response<EducationdetailModel> response) {
 
                 if(response.isSuccessful()) {
 //                    showResponse(response.body().toString());
+                    onBackPressed();
+                    Toast.makeText(EducationActivity.this,"Success!",Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "post submitted to API." + response.body().toString());
+                }
+                else{
+                    Toast.makeText(EducationActivity.this,"Try again Later!",Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<PersonaldetailModel> call, Throwable t) {
+            public void onFailure(Call<EducationdetailModel> call, Throwable t) {
                 showErrorMessage();
                 Log.e(TAG, "Unable to submit post to API.");
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

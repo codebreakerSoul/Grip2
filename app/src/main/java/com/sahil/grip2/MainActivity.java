@@ -1,5 +1,6 @@
 package com.sahil.grip2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -15,10 +16,16 @@ import com.google.gson.JsonObject;
 import com.sahil.grip2.model.PersonaldetailModel;
 import com.sahil.grip2.remote.APIService;
 import com.sahil.grip2.remote.ApiUtils;
+import com.sahil.grip2.remote.RetrofitClient;
 
+import java.util.Objects;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.sahil.grip2.remote.ApiUtils.BASE_URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,14 +36,17 @@ public class MainActivity extends AppCompatActivity {
     String name="",mobile="",skill="",links="",location="",email="";
     String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     String mobilePattern = "[1-9][0-9]{9}";
-
-    private APIService mAPIService;
+    Button btnviewdetails,btnedudetails,btnprodetails;
+    int id=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        Intent intent = getIntent();
+        id = Objects.requireNonNull(intent.getExtras()).getInt("id");
 
         Button submitBtn = findViewById(R.id.btn_submit);
         mResponseTv = findViewById(R.id.tv_response);
@@ -54,7 +64,35 @@ public class MainActivity extends AppCompatActivity {
         il_location = findViewById(R.id.il_location);
         il_email = findViewById(R.id.il_email);
 
-        mAPIService = ApiUtils.getAPIService();
+        btnprodetails = findViewById(R.id.btn_pro_detail);
+        btnedudetails = findViewById(R.id.btn_education_detail);
+        btnviewdetails = findViewById(R.id.btn_showdetails);
+
+        btnviewdetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(MainActivity.this,ViewDetails.class);
+                in.putExtra("id", id);
+                startActivity(in);
+            }
+        });
+        btnedudetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(MainActivity.this,EducationActivity.class);
+                in.putExtra("id", id);
+                startActivity(in);
+            }
+        });
+        btnprodetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(MainActivity.this,ProfessionalActivity.class);
+                in.putExtra("id", id);
+                startActivity(in);
+            }
+        });
+
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,14 +134,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendPost(String body) {
 
-        long id = 158;
-
-        mAPIService.savePost(id, body).enqueue(new Callback<PersonaldetailModel>() {
+        APIService api = RetrofitClient.getClient(BASE_URL).create(APIService.class);
+        Call<PersonaldetailModel> sendbio = api.savePost(id, body);
+        sendbio.enqueue(new Callback<PersonaldetailModel>() {
             @Override
             public void onResponse(Call<PersonaldetailModel> call, Response<PersonaldetailModel> response) {
-
                 if(response.isSuccessful()) {
-                    showResponse(response.body().toString());
+                    showResponse(response.body().getData().toString());
+                    et_email.setText("");
+                    et_mobile.setText("");
+                    et_links.setText("");
+                    et_location.setText("");
+                    et_skill.setText("");
+                    et_name.setText("");
+                    Toast.makeText(MainActivity.this,"Success!",Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "post submitted to API." + response.body().toString());
                 }
             }
@@ -111,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<PersonaldetailModel> call, Throwable t) {
                 showErrorMessage();
-                Log.e(TAG, "Unable to submit post to API.");
             }
         });
     }
