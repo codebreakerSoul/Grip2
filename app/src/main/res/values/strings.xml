@@ -10,5 +10,6 @@
     <string name="title_enter_post">Enter Post</string>
     <string name="personal">Personal Details</string>
     <string name="professional">Professional Details</string>
+    <string name="educational">Educational Details</string>
     <string name="mssg_error_submitting_post">Error submitting post</string>
 </resources>
