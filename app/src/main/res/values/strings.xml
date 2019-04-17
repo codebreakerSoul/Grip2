@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RetrofitTutorial2</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_body">Body</string>
+    <string name="action_submit">Submit</string>
+    <string name="action_update">Update</string>
+    <string name="action_pro_det">Go To Professional Detail</string>
+    <string name="action_educational">Go To Education Detail</string>
+    <string name="action_show">Show Detail</string>
+    <string name="title_enter_post">Enter Post</string>
+    <string name="personal">Personal Details</string>
+    <string name="professional">Professional Details</string>
+    <string name="mssg_error_submitting_post">Error submitting post</string>
+</resources>
